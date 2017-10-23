@@ -1,0 +1,13 @@
+[package]
+name = "compat-db-rewrite"
+version = "0.1.0"
+authors = ["Amila Welihinda <amilajack@gmail.com>"]
+
+[dependencies]
+diesel = { version = "0.16.0", features = ["sqlite"] }
+diesel_codegen = { version = "0.16.0", features = ["sqlite"] }
+dotenv = "0.9.0"
+log = "0.3"
+rusqlite = "*"
+time = "*"
+http = "0.1"
