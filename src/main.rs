@@ -13,6 +13,9 @@ struct Person {
 }
 
 fn main() {
+    // Temporarily using rustqlite. Ideally, we could  migrate to desil so
+    // we have a higher level API and we're not tied to one database.
+    // Migration to MYSQL is ideal since we can create a pool of connections.
     let conn = Connection::open_in_memory().unwrap();
 
     conn.execute(
