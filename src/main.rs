@@ -1,5 +1,11 @@
 extern crate rusqlite;
-extern crate time;
+extern crate serde;
+extern crate serde_json;
+
+#[macro_use]
+extern crate serde_derive;
+
+use serde_json::Error;
 
 use rusqlite::Connection;
 
@@ -16,13 +22,23 @@ enum AstNodeTypes {
 }
 
 struct Record {
-    api_type: ApiType,
-    ast_node_types: AstNodeTypes
+    astNodeTypes: AstNodeTypes,
+    id: String,
+    name: String,
+    protoChain: Vec<String>,
+    protoChainId: String,
+    specIsFinished: bool,
+    apiType: ApiType
 }
 
 struct DatabaseRecord {
     agents: String,
     records: Vec<Record>
+}
+
+fn parseRecords() {
+    #[derive(Serialize, Deserialize)]
+
 }
 
 fn main() {
