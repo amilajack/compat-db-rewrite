@@ -5,4 +5,5 @@ This is a rewrite of the original [compat-db](https://github.com/amilajack/compa
 
 ## Roadmap
 * Integrate record generation from existing `compat-db` codebase
+* Run assertions against sauce labs browsers
 * Implmement `compat-db` as a cli tool

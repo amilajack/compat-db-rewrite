@@ -4,7 +4,7 @@ extern crate serde_json;
 #[derive(Serialize, Deserialize)]
 pub struct Address {
     pub street: String,
-    pub city: String
+    pub city: String,
 }
 
 pub fn write_json() -> Address {

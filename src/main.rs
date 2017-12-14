@@ -1,37 +1,17 @@
 extern crate rusqlite;
 extern crate serde;
-extern crate serde_json;
-
 #[macro_use]
 extern crate serde_derive;
+extern crate serde_json;
+
+mod assertion_formatter;
+mod record;
 
 use std::fs::File;
 use std::io::prelude::*;
 use rusqlite::Connection;
 
-#[derive(Serialize, Deserialize)]
-enum AstNodeTypes {
-    MemberExpression,
-    NewExpression,
-    CallExpression
-}
-
-#[derive(Serialize, Deserialize)]
-struct Record {
-    // @TODO
-    // astNodeTypes: AstNodeTypes,
-    id: String,
-    name: String,
-    protoChain: Vec<String>,
-    protoChainId: String,
-    specIsFinished: bool,
-    apiType: String
-}
-
-struct DatabaseRecord {
-    agents: String,
-    records: Vec<Record>
-}
+use record::Record;
 
 fn main() {
     // Open the records
@@ -42,8 +22,7 @@ fn main() {
     f.read_to_string(&mut contents)
         .expect("something went wrong reading the file");
 
-    let p: Vec<Record> =
-        serde_json::from_str(&contents).expect("Does not match expected schema");
+    let p: Vec<Record> = serde_json::from_str(&contents).expect("Does not match expected schema");
     println!("{:?} Records", p.len());
 
     // Temporarily using rustqlite. Ideally, we could  migrate to desil so
@@ -58,6 +37,6 @@ fn main() {
             time_created    TEXT NOT NULL,
             data            BLOB
         )",
-        &[]
+        &[],
     ).unwrap();
 }
