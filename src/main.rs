@@ -5,7 +5,6 @@ extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
-use serde_json::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use rusqlite::Connection;
@@ -19,6 +18,7 @@ enum AstNodeTypes {
 
 #[derive(Serialize, Deserialize)]
 struct Record {
+    // @TODO
     // astNodeTypes: AstNodeTypes,
     id: String,
     name: String,
@@ -32,8 +32,9 @@ struct DatabaseRecord {
     agents: String,
     records: Vec<Record>
 }
-// #[derive(Debug)]
+
 fn main() {
+    // Open the records
     let filename = "records.json";
     let mut f = File::open(filename).expect("file not found");
 
@@ -41,8 +42,9 @@ fn main() {
     f.read_to_string(&mut contents)
         .expect("something went wrong reading the file");
 
-    let p: Vec<Record> = serde_json::from_str(&contents).expect("adfs");
-    println!("{}", p.len());
+    let p: Vec<Record> =
+        serde_json::from_str(&contents).expect("Does not match expected schema");
+    println!("{:?} Records", p.len());
 
     // Temporarily using rustqlite. Ideally, we could  migrate to desil so
     // we have a higher level API and we're not tied to one database.
