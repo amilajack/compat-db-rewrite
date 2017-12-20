@@ -21,7 +21,7 @@ pub fn format_css_assertion(record: Record) -> String {
 
 pub fn format_js_assertion(record: Record) -> String {
     let cssPropertyName = record.protoChain.get(1).expect("Out of bounds");
-    let remainingProtoObject = record.protoChain.into_iter().filter(|i| &i == "sadf");
+    // let remainingProtoObject = record.protoChain.into_iter().filter(|i| &i == "sadf");
     let formattedStaticProtoChain = record.protoChain.join(".");
     let lowercaseParentObject = record.protoChain
         .get(0)

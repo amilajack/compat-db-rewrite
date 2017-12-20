@@ -8,11 +8,13 @@ pub enum AstNodeTypes {
 #[derive(Serialize, Deserialize)]
 pub struct Record {
     // @TODO
-    // astNodeTypes: AstNodeTypes,
+    pub astNodeTypes: Vec<AstNodeTypes>,
     pub id: String,
     pub name: String,
     pub protoChain: Vec<String>,
     pub protoChainId: String,
+    pub isStatic: bool,
+    pub specNames: Vec<String>,
     pub specIsFinished: bool,
     pub apiType: String,
 }

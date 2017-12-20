@@ -10,20 +10,20 @@ mod record;
 use std::fs::File;
 use std::io::prelude::*;
 use rusqlite::Connection;
-
 use record::Record;
 
 fn main() {
     // Open the records
-    let filename = "records.json";
-    let mut f = File::open(filename).expect("file not found");
+    let mut file = File::open("records.json").expect("file not found");
 
+    // Create a file buffer
     let mut contents = String::new();
-    f.read_to_string(&mut contents)
-        .expect("something went wrong reading the file");
+    file.read_to_string(&mut contents)
+        .expect("Something went wrong reading the file");
 
-    let p: Vec<Record> = serde_json::from_str(&contents).expect("Does not match expected schema");
-    println!("{:?} Records", p.len());
+    let records: Vec<Record> =
+        serde_json::from_str(&contents).expect("Does not match expected schema");
+    println!("{:?} Records", records.len());
 
     // Temporarily using rustqlite. Ideally, we could  migrate to desil so
     // we have a higher level API and we're not tied to one database.
