@@ -9,7 +9,7 @@ use serde_json;
 /**
  * Returns a string which, when evaluated, should return array of booleans
  */
-pub fn format_js_assertion(records: Vec<Record>) -> &'static str {
+pub fn multiple_assertion_formatter(records: Vec<Record>) -> &'static str {
     // Create a string of array protoChain's
     let protoChains: Vec<Vec<String>> = records.into_iter().map(|e| e.protoChain).collect();
 
@@ -61,5 +61,5 @@ pub fn format_js_assertion(records: Vec<Record>) -> &'static str {
 
             return results;
         })();
-  "#
+    "#
 }

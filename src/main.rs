@@ -3,10 +3,15 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+extern crate reqwest;
+extern crate dotenv;
 
 mod assertion_formatter;
 mod multiple_assertion_formatter;
 mod record;
+mod constants;
+mod has_prefix;
+mod test_initiator;
 
 use std::fs::File;
 use std::io::prelude::*;

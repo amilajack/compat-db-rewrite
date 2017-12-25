@@ -5,9 +5,10 @@ pub enum AstNodeTypes {
     CallExpression,
 }
 
+#[derive(Serialize, Deserialize)]
 pub enum ApiType {
-    js_api = 0,
-    css_api = 1,
+    JsApi,
+    CssApi,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -30,12 +31,12 @@ pub struct DatabaseRecord {
 }
 
 pub enum JobStatus {
-    pending = 0,
-    active,
-    failed,
+    Pending = 0,
+    Active,
+    Failed,
 }
 
 pub struct JobQueueRecord {
-    pub browserName: String,
+    pub browser_name: String,
     pub status: JobStatus,
 }
