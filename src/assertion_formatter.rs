@@ -1,7 +1,7 @@
 /// Generate javascript assertions for each API to see if it is supported
 /// in a certain browser
-
 use record::Record;
+use std::collections::HashMap;
 
 pub fn format_css_assertion(record: Record) -> String {
     let cssPropertyName = record.protoChain.get(1).expect("Out of bounds");
@@ -73,4 +73,41 @@ pub fn format_js_assertion(record: Record) -> String {
     "#;
 
     String::from("asfd")
+}
+
+struct CssStruct {
+    apiIsSupported: String,
+    allCSSValues: String,
+    allCSSProperties: String,
+}
+
+struct JsStruct {
+    apiIsSupported: String,
+    determineASTNodeType: String,
+    determineIsStatic: String,
+}
+
+enum Assertions {
+    JsStruct,
+    CssStruct,
+}
+
+pub fn assertion_formatter<'a>(record: Record) -> Result<HashMap<&'a str, &'a str>, ()> {
+    match record.apiType.as_ref() {
+        "css-api" => {
+            let mut map = HashMap::new();
+            map.insert("apiIsSupported", "");
+            map.insert("allCssValues", "");
+            map.insert("allCssProperties", "");
+            Ok(map)
+        }
+        "js-api" => {
+            let mut map = HashMap::new();
+            map.insert("apiIsSupported", "");
+            map.insert("determineAstNodeType", "");
+            map.insert("determineIsStatic", "");
+            Ok(map)
+        }
+        _ => panic!("Unsupported apiType: '{}'", record.apiType),
+    }
 }

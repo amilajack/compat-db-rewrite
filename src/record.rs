@@ -23,3 +23,14 @@ pub struct DatabaseRecord {
     pub agents: String,
     pub records: Vec<Record>,
 }
+
+pub enum JobStatus {
+    pending = 0,
+    active,
+    failed,
+}
+
+pub struct JobQueueRecord {
+    pub browserName: String,
+    pub status: JobStatus,
+}
