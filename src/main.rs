@@ -5,6 +5,7 @@ extern crate serde_derive;
 extern crate serde_json;
 
 mod assertion_formatter;
+mod multiple_assertion_formatter;
 mod record;
 
 use std::fs::File;
@@ -14,12 +15,11 @@ use record::Record;
 
 fn main() {
     // Open the records
-    let mut file = File::open("records.json").expect("file not found");
+    let mut file = File::open("records.json").expect("File not found");
 
     // Create a file buffer
     let mut contents = String::new();
-    file.read_to_string(&mut contents)
-        .expect("Something went wrong reading the file");
+    file.read_to_string(&mut contents).expect("Something went wrong reading the file");
 
     let records: Vec<Record> =
         serde_json::from_str(&contents).expect("Does not match expected schema");
@@ -30,13 +30,12 @@ fn main() {
     // Migration to MYSQL is ideal since we can create a pool of connections.
     let conn = Connection::open_in_memory().expect("Connection could not be established");
 
-    conn.execute(
-        "CREATE TABLE person (
+    conn.execute("CREATE TABLE person (
             id              INTEGER PRIMARY KEY,
             name            TEXT NOT NULL,
             time_created    TEXT NOT NULL,
             data            BLOB
         )",
-        &[],
-    ).unwrap();
+                 &[])
+        .unwrap();
 }

@@ -5,6 +5,11 @@ pub enum AstNodeTypes {
     CallExpression,
 }
 
+pub enum ApiType {
+    js_api = 0,
+    css_api = 1,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Record {
     // @TODO
@@ -16,7 +21,7 @@ pub struct Record {
     pub isStatic: bool,
     pub specNames: Vec<String>,
     pub specIsFinished: bool,
-    pub apiType: String,
+    pub apiType: ApiType,
 }
 
 pub struct DatabaseRecord {
