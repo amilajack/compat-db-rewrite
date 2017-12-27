@@ -4,7 +4,7 @@ use record::Record;
 use std::collections::HashMap;
 
 pub fn format_css_assertion(record: Record) -> String {
-    let cssPropertyName = record.protoChain.get(1).expect("Out of bounds");
+    let css_property_name = record.protoChain.get(1).expect("Out of bounds");
     let assertion = r#"
         (function () {
             // Check CSS properties
@@ -20,10 +20,10 @@ pub fn format_css_assertion(record: Record) -> String {
 }
 
 pub fn format_js_assertion(record: Record) -> String {
-    let cssPropertyName = record.protoChain.get(1).expect("Out of bounds");
+    let css_property_name = record.protoChain.get(1).expect("Out of bounds");
     // let remainingProtoObject = record.protoChain.into_iter().filter(|i| &i == "sadf");
-    let formattedStaticProtoChain = record.protoChain.join(".");
-    let lowercaseParentObject = record.protoChain
+    let formatted_static_proto_chain = record.protoChain.join(".");
+    let lowercase_parent_object = record.protoChain
         .get(0)
         .expect("asdf")
         .to_lowercase();
@@ -31,17 +31,17 @@ pub fn format_js_assertion(record: Record) -> String {
     let exceptions = vec!["crypto", "Crypto"];
 
     //   let lowercaseTestCondition = String(
-    //     lowercaseParentObject !== 'function' &&
+    //     lowercase_parent_object !== 'function' &&
     //     !exceptions.has(record.protoChain[0])
     //   );
 
     let lowercaseSupportTest = r#"
         if (${lowercaseTestCondition}) {
-        ${lowercaseParentObject === 'function' ||
-        lowercaseParentObject === record.protoChain[0]
+        ${lowercase_parent_object === 'function' ||
+        lowercase_parent_object === record.protoChain[0]
             ? ''
-            : `if (typeof ${lowercaseParentObject} !== 'undefined') {
-            throw new Error('${record.protoChain[0]} is not supported but ${lowercaseParentObject} is supported')
+            : `if (typeof ${lowercase_parent_object} !== 'undefined') {
+            throw new Error('${record.protoChain[0]} is not supported but ${lowercase_parent_object} is supported')
             }`}
         }
     "#;
@@ -55,7 +55,7 @@ pub fn format_js_assertion(record: Record) -> String {
             // a
             if (typeof ${record.protoChain[0]} === 'undefined') { return false }
             // a.b
-            if (typeof ${formattedStaticProtoChain} !== 'undefined')  { return true }
+            if (typeof ${formatted_static_protoChain} !== 'undefined')  { return true }
             // a.prototype.b
             if (typeof ${record.protoChain[0]}.prototype !== 'undefined') {
             if (${remainingProtoObject.length} === 0) { return false }
@@ -94,14 +94,14 @@ enum Assertions {
 
 pub fn assertion_formatter<'a>(record: Record) -> HashMap<&'a str, &'a str> {
     match record.apiType {
-        css_api => {
+        CssApi => {
             let mut map = HashMap::new();
             map.insert("apiIsSupported", "");
             map.insert("allCssValues", "");
             map.insert("allCssProperties", "");
             map
         }
-        js_api => {
+        JsApi => {
             let mut map = HashMap::new();
             map.insert("apiIsSupported", "");
             map.insert("determineAstNodeType", "");

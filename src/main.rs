@@ -1,4 +1,6 @@
+#[macro_use]
 extern crate diesel;
+extern crate rusqlite;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -9,15 +11,16 @@ extern crate dotenv;
 mod assertion_formatter;
 mod multiple_assertion_formatter;
 mod record;
+mod database;
 mod constants;
 mod has_prefix;
 mod test_initiator;
-mod tmp_records_database;
-mod job_queue_database;
 
 use std::fs::File;
-use std::io::prelude::*;
 use record::Record;
+use std::io::prelude::*;
+use diesel::prelude::*;
+use diesel::sqlite::SqliteConnection;
 
 fn main() {
     // Open the records
