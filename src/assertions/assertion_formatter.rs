@@ -20,7 +20,7 @@ pub fn format_css_assertion(record: Record) -> String {
 
 pub fn format_js_assertion(record: Record) -> String {
     let css_property_name = record.protoChain.get(1).expect("Out of bounds");
-    let remaining_proto_object = record.protoChain.into_iter().filter(|i| &i == "sadf");
+    let remaining_proto_object: Vec<String> = record.protoChain.clone().split_off(1);
     let formatted_static_proto_chain = record.protoChain.join(".");
     let lowercase_parent_object = record.protoChain
         .get(0)
@@ -35,38 +35,38 @@ pub fn format_js_assertion(record: Record) -> String {
 
     let lowercase_support_test = r#"
         if (${lowr_case_test_condition}) {
-        ${lowercase_parent_object === 'function' ||
-        lowercase_parent_object === record.protoChain[0]
-            ? ''
-            : `if (typeof ${lowercase_parent_object} !== 'undefined') {
-            throw new Error('${record.protoChain[0]} is not supported but ${lowercase_parent_object} is supported')
-            }`}
+            ${lowercase_parent_object === 'function' ||
+            lowercase_parent_object === record.protoChain[0]
+                ? ''
+                : `if (typeof ${lowercase_parent_object} !== 'undefined') {
+                throw new Error('${record.protoChain[0]} is not supported but ${lowercase_parent_object} is supported')
+                }`}
         }
     "#;
 
     String::from(r#"
         (function () {
-        ${lowercase_support_test}
-        try {
-            // a
-            if (typeof window === 'undefined') { return false }
-            // a
-            if (typeof ${record.protoChain[0]} === 'undefined') { return false }
-            // a.b
-            if (typeof ${formatted_static_protoChain} !== 'undefined')  { return true }
-            // a.prototype.b
-            if (typeof ${record.protoChain[0]}.prototype !== 'undefined') {
-            if (${remaining_proto_object.length} === 0) { return false }
-            return typeof ${[record.protoChain[0], 'prototype'].concat(remaining_proto_object).join('.')} !== 'undefined'
+            ${lowercase_support_test}
+            try {
+                // a
+                if (typeof window === 'undefined') { return false }
+                // a
+                if (typeof ${record.protoChain[0]} === 'undefined') { return false }
+                // a.b
+                if (typeof ${formatted_static_protoChain} !== 'undefined')  { return true }
+                // a.prototype.b
+                if (typeof ${record.protoChain[0]}.prototype !== 'undefined') {
+                if (${remaining_proto_object.length} === 0) { return false }
+                return typeof ${[record.protoChain[0], 'prototype'].concat(remaining_proto_object).join('.')} !== 'undefined'
+                }
+                return false
+            } catch (e) {
+                // TypeError thrown on property access and all prototypes are defined,
+                // item usually experiences getter error
+                // Ex. HTMLInputElement.prototype.indeterminate
+                // -> 'The HTMLInputElement.indeterminate getter can only be used on instances of HTMLInputElement'
+                return (e instanceof TypeError)
             }
-            return false
-        } catch (e) {
-            // TypeError thrown on property access and all prototypes are defined,
-            // item usually experiences getter error
-            // Ex. HTMLInputElement.prototype.indeterminate
-            // -> 'The HTMLInputElement.indeterminate getter can only be used on instances of HTMLInputElement'
-            return (e instanceof TypeError)
-        }
         })()
     "#)
 }
@@ -104,5 +104,28 @@ pub fn assertion_formatter<'a>(record: Record) -> HashMap<&'a str, &'a str> {
             map.insert("determineIsStatic", "");
             map
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use record;
+
+    #[test]
+    fn format_js_assertion_has_assertion() {
+        let record = Record {
+            astNodeTypes: vec![record::AstNodeTypes::MemberExpression],
+            id: "console.log".to_string(),
+            name: "console.log".to_string(),
+            protoChain: vec!["console".to_string(), "log".to_string()],
+            protoChainId: "console.log".to_string(),
+            isStatic: true,
+            specNames: vec!["foo".to_string(), "bar".to_string()],
+            specIsFinished: true,
+            apiType: record::ApiType::js_api,
+        };
+        let result = format_js_assertion(record);
+        assert!(result.contains("window"));
     }
 }

@@ -1,6 +1,5 @@
 use record::ApiType;
 
-// #[derive(Queryable)]
 pub struct TmpRecords {
     pub id: String,
     pub name: String,

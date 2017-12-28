@@ -1,6 +1,5 @@
 use record::ApiType;
 
-// #[derive(Queryable)]
 pub struct JobQueue {
     pub name: String,
     pub browser_name: String,
