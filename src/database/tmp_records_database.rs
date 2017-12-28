@@ -6,32 +6,19 @@
 /// Migration to MYSQL is ideal since we can create a pool of connections.
 ///
 // @TODO: Migrate to Diesel
+use serde_json;
+use rayon::prelude::*;
 use std::collections::HashMap;
 use record::{ApiType, Record};
-// use diesel::prelude::*;
-// use database::schema::tmp_records::dsl;
 use database::models::tmp_record_model::TmpRecords;
-use rusqlite::Connection;
-use database::Database;
-use serde_json;
-
-// #[derive(Queryable)]
-struct TemporaryRecord {
-    id: String,
-    name: String,
-    proto_chain_id: String,
-    versions: String,
-    api_type: ApiType,
-    caniuse_id: String,
-}
+use rusqlite::{Connection};
 
 struct RecordQuery {
     api_type: ApiType,
     proto_chain_id: String,
 }
 
-// #[derive(Queryable)]
-struct TemporaryRecordDatabase {
+pub struct TemporaryRecordDatabase {
     connection: Connection,
 }
 
@@ -39,21 +26,23 @@ struct TemporaryRecordDatabase {
 /// and formatted later
 impl TemporaryRecordDatabase {
     fn new() -> Self {
-        Self { connection: Connection::open_in_memory().unwrap() }
+        Self { connection: Connection::open(":memory:").unwrap() }
     }
 
     fn migrate(&self) {
-        &self.connection.execute(r#"
-            CREATE TABLE tmp_records (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                proto_chain_id TEXT NOT NULL,
-                versions TEXT NOT NULL,
-                api_type TEXT NOT NULL,
-                caniuse_id TEXT NOT NULL
-            )
-        "#,
-        &[]);
+        &self.connection.execute(
+            r#"
+                CREATE TABLE tmp_records (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    proto_chain_id TEXT NOT NULL,
+                    versions TEXT NOT NULL,
+                    api_type TEXT NOT NULL,
+                    caniuse_id TEXT NOT NULL
+                )
+            "#,
+            &[]
+        );
     }
 
     fn drop(&self) {
@@ -61,21 +50,36 @@ impl TemporaryRecordDatabase {
     }
 
     /// Find all the compatibility records for every version of the same browser
-    fn find_same_version_compat_record(&self, record: Record, caniuse_id: String) {
-        &self.connection.execute(
-            r#"
+    fn find_same_version_compat_record(&self, record: Record, caniuse_id: String) -> Vec<TmpRecords> {
+        let connection = Connection::open(":memory:").unwrap();
+        let mut query = connection
+            .prepare(r#"
                 SELECT *
                 FROM tmp_records
-                WHERE name = ?1
-                AND proto_chain_id = ?2
-                AND caniuse_id = ?3
-            "#,
-            &[&caniuse_id, &record.protoChainId, &caniuse_id]
-        ).unwrap();
+                WHERE name = ?
+                AND proto_chain_id = ?
+                AND caniuse_id = ?
+            "#)
+            .unwrap();
+
+        let rows = query.query_map(&[], |row| {
+            TmpRecords {
+                api_type: ApiType::js_api,
+                id: row.get(0),
+                name: row.get(0),
+                proto_chain_id: row.get(0),
+                versions: row.get(0),
+                caniuse_id: row.get(0),
+            }
+        })
+        .unwrap();
+
+        let res = rows.map(|e| e.unwrap()).collect();
+        res
     }
 
     /// Efficiently insert many temporary records
-    fn insert_bulk_records(&self,
+    pub fn insert_bulk_records(&self,
                             record: Record,
                             caniuse_id: String,
                             versions: Vec<String>,
@@ -86,30 +90,24 @@ impl TemporaryRecordDatabase {
             newly_generated_record_versions.insert(version, is_supported);
         }
 
+        // Serialize the version records
         let stringifyed = serde_json::to_string(&newly_generated_record_versions).unwrap();
 
-        &self.connection.execute(r#"
-                INSERT INTO tmp_records (name, proto_chain_id, versions, api_type, caniuse_id)
-                WHERE caniuse_id = ?1
-                AND name = ?2
-                AND proto_chain_id = ?3
-                VALUES (?4, ?5, ?6, ?7, ?8)
+        // Create the temporary record
+        &self.connection.execute(
+            r#"
+                UPDATE tmp_records
+                SET versions = ?1
+                WHERE caniuse_id = ?2
+                AND name = ?3
+                AND proto_chain_id = ?4
             "#,
-            &[&caniuse_id, &caniuse_id, &record.protoChainId, &caniuse_id, &record.protoChainId, &stringifyed, &"js_api", &caniuse_id]
+            &[
+                &stringifyed,
+                &caniuse_id,
+                &caniuse_id,
+                &record.protoChainId
+            ]
         );
-
-        // connection
-        //   .where({
-        //     caniuseId,
-        //     name: caniuseId,
-        //     protoChainId: record.protoChainId
-        //   })
-        //   .save({
-        //     name: caniuseId,
-        //     type: record.type,
-        //     protoChainId: record.protoChainId,
-        //     versions: serde_json::to_string(&newlyGenerateRecordVersions).unwrap(),
-        //     caniuseId
-        //   })
     }
 }

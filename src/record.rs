@@ -7,11 +7,11 @@ pub enum AstNodeTypes {
 
 #[derive(Serialize, Deserialize)]
 pub enum ApiType {
-    JsApi,
-    CssApi,
+    js_api,
+    css_api,
 }
 
-#[derive(Serialize, Deserialize, Queryable)]
+#[derive(Serialize, Deserialize)]
 pub struct Record {
     // @TODO
     pub astNodeTypes: Vec<AstNodeTypes>,
@@ -25,7 +25,7 @@ pub struct Record {
     pub apiType: ApiType,
 }
 
-#[derive(Serialize, Deserialize, Queryable)]
+#[derive(Serialize, Deserialize)]
 pub struct DatabaseRecord {
     pub agents: String,
     pub records: Vec<Record>,
