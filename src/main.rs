@@ -6,6 +6,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate reqwest;
 extern crate dotenv;
+extern crate liquid;
 
 mod assertions;
 mod record;

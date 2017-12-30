@@ -45,6 +45,7 @@ impl TemporaryRecordDatabase {
         );
     }
 
+    /// Drop the database
     fn drop(&self) {
         &self.connection.execute("DROP TABLE tmp_records", &[]).unwrap();
     }
