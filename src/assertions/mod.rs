@@ -11,8 +11,8 @@ pub fn render(template: &str, map: &HashMap<&str, liquid::Value>) -> String {
         .unwrap();
 
     let mut globals = liquid::Object::new();
-    for (&k, &v) in map {
-        globals.insert(k.to_string(), v);
+    for (&k, v) in map {
+        globals.insert(k.to_string(), v.to_owned());
     }
 
     template.render(&globals).unwrap()
